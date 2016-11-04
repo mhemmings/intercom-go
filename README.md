@@ -4,11 +4,14 @@
 
 Thin client for the [Intercom](https://www.intercom.io) API.
 
-_Currently in beta, though breaking API changes are not expected._
-
 ## Install
 
-`go get gopkg.in/intercom/intercom-go.v1`
+`go get gopkg.in/intercom/intercom-go.v2`
+
+[![docker_image 1](https://cloud.githubusercontent.com/assets/15954251/17524401/5743439e-5e56-11e6-8567-d3d9da1727da.png)](https://hub.docker.com/r/cathalhoran/intercom-go/) <br>
+Try out our [Docker Image (Beta)](https://hub.docker.com/r/cathalhoran/intercom-go/) to help you get started more quickly. <br>
+It should make it easier to get setup with the SDK and start interacting with the API. <br>
+(Note, this is in Beta and is for testing purposes only, it should not be used in production)
 
 ## Usage
 
@@ -18,7 +21,7 @@ The first step to using Intercom's Go client is to create a client object, using
 
 ```go
 import (
-	`gopkg.in/intercom/intercom-go.v1`
+	`import intercom "gopkg.in/intercom/intercom-go.v2"`
 )
 
 ic := intercom.NewClient("appID", "apiKey")
@@ -51,7 +54,7 @@ user := intercom.User{
 	UserID: "27",
 	Email: "test@example.com",
 	Name: "InterGopher",
-	SignedUpAt: int32(time.Now().Unix()),
+	SignedUpAt: int64(time.Now().Unix()),
 	CustomAttributes: map[string]interface{}{"is_cool": true},
 }
 savedUser, err := ic.Users.Save(&user)
@@ -237,7 +240,7 @@ companyList, err := ic.Companies.ListByTag("42", intercom.PageParams{})
 event := intercom.Event{
 	UserID: "27",
 	EventName: "bought_item",
-	CreatedAt: int32(time.Now().Unix()),
+	CreatedAt: int64(time.Now().Unix()),
 	Metadata: map[string]interface{}{"item_name": "PocketWatch"},
 }
 err := ic.Events.Save(&event)
@@ -302,13 +305,13 @@ savedTag, err := ic.Tags.Tag(&taggingList)
 
 ```go
 segmentList := ic.Segments.List()
-segments := segmentList.Segments
+segments, err := segmentList.Segments
 ```
 
 #### Find
 
 ```go
-segment := ic.Segments.Find("abc312daf2397")
+segment, err := ic.Segments.Find("abc312daf2397")
 ```
 
 ### Messages
@@ -437,6 +440,40 @@ convo, err := intercom.Conversations.Close("1234", &closerAdmin)
 convo, err := intercom.Conversations.Assign("1234", &assignerAdmin, &assigneeAdmin)
 ```
 
+### Bulk
+
+Bulk operations are supported through this package, see [the documentation](https://doc.intercom.io/api/#bulk-apis) for details.
+
+New user bulk job, posts a user and deletes another:
+
+```go
+jobResponse := ic.Jobs.NewUserJob(intercom.NewUserJobItem(&user, intercom.JOB_POST), intercom.NewUserJobItem(&userTwo, intercom.JOB_DELETE))
+```
+
+Append to an existing user job:
+
+```go
+jobResponse := ic.Jobs.AppendUsers("job_5ca1ab1eca11ab1e", intercom.NewUserJobItem(&user, intercom.JOB_POST))
+```
+
+New event bulk job:
+
+```go
+jobResponse := ic.Jobs.NewEventJob(intercom.NewEventJobItem(&event), intercom.NewEventJobItem(&eventTwo))
+```
+
+Append to an existing event job:
+
+```go
+jobResponse := ic.Jobs.AppendEvents("job_5ca1ab1eca11ab1e", intercom.NewEventJobItem(&eventTwo))
+```
+
+Find a Job:
+
+```go
+jobResponse := ic.Jobs.Find("job_5ca1ab1eca11ab1e")
+```
+
 ### Errors
 
 Errors may be returned from some calls. Errors returned from the API will implement `intercom.IntercomError` and can be checked:
@@ -474,3 +511,20 @@ ic.Option(intercom.SetHTTPClient(myHTTPClient))
 Due to the way Go represents the zero value for a bool, it's necessary to pass pointers to bool instead in some places.
 
 The helper `intercom.Bool(true)` creates these for you.
+
+
+### Pull Requests
+
+- **Add tests!** Your patch won't be accepted if it doesn't have tests.
+
+- **Document any change in behaviour**. Make sure the README and any other
+  relevant documentation are kept up-to-date.
+
+- **Create topic branches**. Don't ask us to pull from your master branch.
+
+- **One pull request per feature**. If you want to do more than one thing, send
+  multiple pull requests.
+
+- **Send coherent history**. Make sure each individual commit in your pull
+  request is meaningful. If you had to make multiple intermediate commits while
+  developing, please squash them before sending them to us.
