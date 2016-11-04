@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/intercom/intercom-go/interfaces"
+	"github.com/mhemmings/intercom-go/interfaces"
 )
 
 // JobRepository defines the interface for working with Jobs.

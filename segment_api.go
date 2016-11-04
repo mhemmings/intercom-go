@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/intercom/intercom-go/interfaces"
+	"github.com/mhemmings/intercom-go/interfaces"
 )
 
 // SegmentRepository defines the interface for working with Segments through the API.
